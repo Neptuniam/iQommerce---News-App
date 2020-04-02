@@ -3,28 +3,52 @@
     <h1 class="nospacing"> <em>News that matters to you</em> </h1>
     <h4 class="nospacing">Search for a topic that interests you</h4>
 
-    <div class="searchRow" uk-sticky>
-        <input type="text" v-model="searchTerm" class="uk-input termInput">
-        <select class="uk-select" v-model="sortBy">
-            <option value="publishedAt">Publish Date</option>
-            <option value="popularity">Popular</option>
-        </select>
-        <button type="button" class="uk-button uk-button-primary" @click="requestNews(searchTerm, sortBy)">Search</button>
+    <div class="searchRow row fullWidth" uk-sticky>
+        <div class="col-xs-8">
+            <input type="text" v-model="searchTerm" class="uk-input termInput">
+            <select class="uk-select" v-model="sortBy">
+                <option value="publishedAt">Publish Date</option>
+                <option value="popularity">Popular</option>
+            </select>
+            <button type="button" class="uk-button uk-button-primary" @click="requestNews(searchTerm, sortBy)">Search</button>
 
-        <!-- <button v-if="newsArticles" type="button" class="uk-button uk-button-secondary">Save this Term</button> -->
+        </div>
+
+        <div class="col-xs end-xs">
+            <!-- <ul uk-tab class="end-xs">
+                <li>
+                    <a class="uk-text-capitalize textTitle tabsTitle noselect" @click="setTab('NewArticles')">
+                        New
+                    </a>
+                </li>
+
+                <li>
+                    <a class="uk-text-capitalize textTitle tabsTitle noselect" @click="setTab('SavedArticles')">
+                        Saved
+                    </a>
+                </li>
+            </ul> -->
+            <!-- <button @click="setTab('NewArticles')" class="uk-button" :class="{'uk-button-secondary': activeTab == 'NewArticles'}">
+                New
+            </button>
+            <button @click="setTab('SavedArticles')" class="uk-button" :class="{'uk-button-secondary': activeTab == 'SavedArticles'}">
+                Saved
+            </button> -->
+
+            <!-- <b>Viewing</b> -->
+            <select class="uk-select" v-model="activeTab">
+                <option value="NewArticles">New</option>
+                <option value="SavedArticles">Saved</option>
+            </select>
+        </div>
     </div>
 
-
-    <div v-if="newsArticles">
-        <h3>Headlines:</h3>
-
-        <div v-if="newsArticles.totalResults == 0 || !(newsArticles.articles && newsArticles.articles.length)">
-            No Articles Found
-        </div>
-        <div v-else>
-            <div v-for="(article, index) in newsArticles.articles" :key="index" class="ArticleContainer">
-                <Article :article="article" />
-            </div>
+    <div v-if="!activeArticles || !(activeArticles && activeArticles.length)" class="center-xs">
+        No Articles Found
+    </div>
+    <div v-else>
+        <div v-for="(article, index) in activeArticles" :key="index" class="ArticleContainer">
+            <Article :article="article" />
         </div>
     </div>
 </div>
@@ -41,13 +65,26 @@ export default {
 
     data() {
         return {
+            activeTab: 'NewArticles',
+
             searchTerm: "Technology",
             sortBy: "publishedAt",
-            newsArticles: null
+            newsArticles: null,
+            savedArticles: null
+        }
+    },
+
+    computed: {
+        activeArticles() {
+            return this.activeTab == 'NewArticles' ? this.newsArticles : this.savedArticles
         }
     },
 
     methods: {
+        setTab(tab) {
+            this.activeTab = tab
+        },
+
         requestNews(searchTerm, sortBy) {
             // Api Can't handle search terms with whitespace
             searchTerm = searchTerm.trim().replace(/ /g, '')
@@ -57,9 +94,21 @@ export default {
                 console.log(response);
 
                 if (response.status == 200)
-                    this.newsArticles = response.data
+                    this.newsArticles = response.data.articles
             })
         }
+    },
+
+    mounted() {
+        let fetchSaved = localStorage.getItem('NewsAppSaved')
+        this.savedArticles = fetchSaved ? JSON.parse(fetchSaved) : []
+
+        console.log(this.savedArticles);
+    },
+
+    destroyed() {
+        // localStorage.setItem('NewsAppSaved', JSON.stringify(this.savedArticles))
+        // localStorage.setItem('NewsAppSaved', JSON.stringify({title: "helloWorld"}))
     },
 }
 </script>
@@ -95,6 +144,4 @@ export default {
     .ArticleContainer {
         margin: 100px 0;
     }
-
-
 </style>

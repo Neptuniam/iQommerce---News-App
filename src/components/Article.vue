@@ -12,7 +12,8 @@
         <br>
         <a :href="article.url" target="_blank">Read full article.</a>
         -
-        <a @click="saveArticle">Save article.</a>
+        <a v-if="isSaved(article)" @click="unsaveArticle(article)">Unsave article.</a>
+        <a v-else @click="saveArticle(article)">Save article.</a>
     </p>
 </div>
 </template>
@@ -31,6 +32,28 @@ export default {
             if (this.article && this.article.content)
                 return this.article.content.split('[+')[0]
             return null
+        }
+    },
+
+    methods: {
+        isSaved(article) {
+            return this.$parent.savedArticles.findIndex(saved => saved.title == article.title) != -1
+        },
+
+        saveArticle(article) {
+            console.log(article);
+            this.$parent.savedArticles.push(article)
+            this.backupSaved()
+        },
+        unsaveArticle(article) {
+            console.log(article);
+            let index = this.$parent.savedArticles.findIndex(saved => saved.title == article.title)
+            this.$parent.savedArticles.splice(index, 1)
+            this.backupSaved()
+        },
+
+        backupSaved() {
+            localStorage.setItem('NewsAppSaved', JSON.stringify(this.$parent.savedArticles))
         }
     },
 }
