@@ -1,3 +1,10 @@
+/* A few CSS classes I take everywhere with me */
+    
+.limitReadable {
+    max-width: 770px !important;
+    line-height: 1.75;
+}
+
 .fullWidth {
     width: 100% !important;
 }

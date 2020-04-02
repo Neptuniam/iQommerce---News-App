@@ -1,4 +1,7 @@
-all:
+all: serve
+
+serve:
+	npm run serve
 
 publish:
 	rm -r docs
