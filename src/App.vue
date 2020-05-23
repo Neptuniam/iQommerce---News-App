@@ -105,7 +105,7 @@ export default {
             // Display the spinner to show the user the request is in progress
             this.loading = true
 
-            let query = `https://newsapi.org/v2/everything?q=${searchTerm}&sortBy=${sortBy}?country=ca&apiKey=2b056b1596eb4356a56510c4e19da2b7`
+            let query = `https://cors-anywhere.herokuapp.com/https://newsapi.org/v2/everything?q=${searchTerm}&sortBy=${sortBy}?country=ca&apiKey=2b056b1596eb4356a56510c4e19da2b7`
             this.axios.get(query).then(response => {
                 console.log(response);
 
